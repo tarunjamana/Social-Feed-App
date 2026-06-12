@@ -45,14 +45,22 @@ useServer({
   }
 }, wsServer)
 
-  app.use(cors());
+  const corsOptions = {
+    origin: [
+      "http://localhost:5173",
+      "https://social-feed-app-eight.vercel.app",
+    ],
+    credentials: true,
+  };
+
+  app.use(cors(corsOptions));
   app.use(express.json());
 
   app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
   });
 
-  app.use("/graphql", cors(), express.json(), expressMiddleware(server, {
+  app.use("/graphql", cors(corsOptions), express.json(), expressMiddleware(server, {
   context: async ({ req }) => contextMiddleware(req,pubSub)
 }));
 
