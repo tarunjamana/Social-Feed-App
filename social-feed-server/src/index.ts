@@ -13,7 +13,7 @@ import { WebSocketServer } from 'ws';
 import jwt from 'jsonwebtoken'
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 
 const httpServer = http.createServer(app);
