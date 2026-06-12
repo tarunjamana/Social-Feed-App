@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  displayName  String
+  bio          String?
+  avatar       String?
+  createdAt    DateTime @default(now())
+
+  refreshTokens RefreshToken[]
+  posts         Post[]
+  likes         Like[]
+  followers     Follow[]       @relation("followers")
+  following     Follow[]       @relation("following")
+  comments      Comment[]
+  fromUserNotifications  Notification[] @relation("fromUser")
+  toUserNotifications    Notification[] @relation("toUser")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  content   String
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+
+  likes    Like[]
+  comments Comment[]
+  notifications  Notification[]
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+model Follow {
+  id          String @id @default(cuid())
+  followerId  String
+  follower    User   @relation(name: "followers", fields: [followerId], references: [id])
+  followingId String
+  following   User   @relation(name: "following", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+}
+
+enum NotificationType {
+  FOLLOW
+  LIKE
+  COMMENT
+}
+
+model Notification{
+  id        String   @id @default(cuid())
+  fromUserId String
+  toUserId String
+  type NotificationType
+  fromUser User @relation(name:"fromUser",fields: [fromUserId],references: [id])
+  toUser User @relation(name:"toUser",fields: [toUserId],references: [id])
+  relatedPostId String?
+  post Post? @relation(fields: [relatedPostId],references: [id])
+  isRead Boolean @default(false)
+  createdAt DateTime @default(now())
+}
