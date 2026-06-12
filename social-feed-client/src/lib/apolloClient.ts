@@ -8,11 +8,14 @@ import { createClient } from "graphql-ws";
 import { split } from "@apollo/client";
 import { getMainDefinition } from "@apollo/client/utilities";
 
-const httpLink = new HttpLink({ uri: "http://localhost:4000/graphql" });
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:4000";
+
+const httpLink = new HttpLink({ uri: `${API_URL}/graphql` });
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: "ws://localhost:4000/graphql",
+    url: `${WS_URL}/graphql`,
       connectionParams: () => ({
     authorization: useAuthStore.getState().accessToken 
       ? `Bearer ${useAuthStore.getState().accessToken}` 
