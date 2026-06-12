@@ -1,15 +1,15 @@
 import prismaClient from "../../lib/prisma";
 import { Context } from "../../types/context";
 
-interface UserProfileArgs {
+export interface UserProfileArgs {
   username: string;
 }
 
-interface SearchUsersArgs {
+export interface SearchUsersArgs {
   query: string;
 }
 
-interface UpdateProfileArgs {
+export interface UpdateProfileArgs {
   displayName?: string;
   bio?: string;
 }
